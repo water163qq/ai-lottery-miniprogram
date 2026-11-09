@@ -1,0 +1,80 @@
+<view class="app">
+  <view class="topbar">
+    <view class="brand">
+      <view class="logo">AI</view>
+      <view class="brand-text">
+        <text class="h1">AI 智能选号</text>
+        <text class="h1-sub">摇号对比 · 战绩统计</text>
+      </view>
+    </view>
+    <view class="segmented">
+      <view
+        wx:for="{{games}}"
+        wx:key="id"
+        class="tab {{item.id === gameId ? 'active' : ''}}"
+        data-id="{{item.id}}"
+        bindtap="onSwitchGame"
+      >{{item.name}}</view>
+    </view>
+  </view>
+
+  <view class="page-head">
+    <text class="h2">模拟开奖</text>
+    <text class="h2-sub">摇号对比 · 战绩统计</text>
+  </view>
+
+  <view class="card card-first">
+    <view class="card-head">
+      <text class="h2">开始摇号</text>
+      <view class="ghost" bindtap="onClearStats">清空战绩</view>
+    </view>
+    <view class="draw-controls">
+      <view class="select-box" bindtap="onCompareMode">
+        <text>{{compareLabel}}</text>
+        <text class="muted">▾</text>
+      </view>
+      <view class="primary {{running ? 'disabled' : ''}}" bindtap="onDraw">{{running ? '摇号中' : '摇号'}}</view>
+    </view>
+    <view class="balls-row draw-stage {{running ? 'running' : ''}}">
+      <view wx:for="{{stage}}" wx:key="k" class="{{item.cls}}" style="opacity:{{item.opacity}}">{{item.n}}</view>
+    </view>
+    <view wx:if="{{compareBalls.length > 0}}" class="compare-row">
+      <text>你的号码：</text>
+      <view wx:for="{{compareBalls}}" wx:key="k" class="{{item.cls}}">{{item.n}}</view>
+    </view>
+    <view class="draw-result">
+      <view wx:if="{{drawn}}">{{hitText}}</view>
+      <view wx:if="{{drawn}}" class="{{won ? 'prize' : 'miss'}}">{{resultText}}</view>
+    </view>
+  </view>
+
+  <view class="card">
+    <view class="card-head">
+      <text class="h2">战绩统计</text>
+      <text class="muted small">按彩种独立保存</text>
+    </view>
+    <view class="draw-stats">
+      <view class="stat-cell">
+        <view class="v">{{stats.count}}</view>
+        <view class="k">模拟摇号次数</view>
+      </view>
+      <view class="stat-cell">
+        <view class="v win">{{stats.win}}</view>
+        <view class="k">命中奖级次数</view>
+      </view>
+      <view class="stat-cell">
+        <view class="v">{{stats.rate}}%</view>
+        <view class="k">命中率</view>
+      </view>
+      <view class="stat-cell">
+        <view class="v">{{stats.bestText}}</view>
+        <view class="k">最佳奖级</view>
+      </view>
+    </view>
+  </view>
+
+  <view class="app-footer">
+    <text class="line">彩票开奖为独立随机事件，历史数据与算法均无法预测结果。</text>
+    <text class="line">仅供技术演示与娱乐，请理性购彩，未满 18 周岁禁止购彩。</text>
+  </view>
+</view>

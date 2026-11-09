@@ -1,0 +1,71 @@
+<view class="app">
+  <view class="topbar">
+    <view class="brand">
+      <view class="logo">AI</view>
+      <view class="brand-text">
+        <text class="h1">AI 智能选号</text>
+        <text class="h1-sub">本机保存 · 一键检票</text>
+      </view>
+    </view>
+    <view class="segmented">
+      <view
+        wx:for="{{games}}"
+        wx:key="id"
+        class="tab {{item.id === gameId ? 'active' : ''}}"
+        data-id="{{item.id}}"
+        bindtap="onSwitchGame"
+      >{{item.name}}</view>
+    </view>
+  </view>
+
+  <view class="page-head">
+    <text class="h2">我的收藏</text>
+    <text class="h2-sub">本机保存 · 一键检票</text>
+  </view>
+
+  <view class="card card-first">
+    <view class="card-head">
+      <text class="h2">收藏号码</text>
+      <view class="head-actions">
+        <text class="muted small">共 {{favCount}} 注</text>
+        <view class="ghost" bindtap="onCheckAll">批量检票</view>
+      </view>
+    </view>
+    <view wx:if="{{favs.length === 0}}" class="fav-empty">还没有收藏，生成号码后点击「收藏」保存到这里。</view>
+    <view wx:for="{{favs}}" wx:key="k" class="fav-item">
+      <view class="balls-row">
+        <view wx:for="{{item.balls}}" wx:for-item="b" wx:key="k" class="{{b.cls}}">{{b.n}}</view>
+      </view>
+      <view class="actions">
+        <view class="ghost" data-index="{{index}}" bindtap="onCopy">复制</view>
+        <view class="ghost" data-index="{{index}}" bindtap="onRemove">移除</view>
+      </view>
+    </view>
+  </view>
+
+  <view wx:if="{{checkRows.length > 0}}" class="card">
+    <view class="card-head">
+      <text class="h2">检票结果</text>
+      <text class="muted small">模拟检票，仅供娱乐</text>
+    </view>
+    <view class="fav-check-result">
+      <view class="ck-row ck-sep">
+        <text class="muted">本次摇出：</text>
+        <view wx:for="{{drawnBalls}}" wx:for-item="b" wx:key="k" class="{{b.cls}}">{{b.n}}</view>
+      </view>
+      <view wx:for="{{checkRows}}" wx:key="k" class="ck-row {{item.won ? 'hit' : ''}}">
+        <text class="muted">{{item.index}}</text>
+        <view wx:for="{{item.balls}}" wx:for-item="b" wx:key="k" class="{{b.cls}}">{{b.n}}</view>
+        <text class="{{item.won ? '' : 'muted'}}">{{item.text}}</text>
+      </view>
+      <view class="ck-row" style="padding-top:8px">
+        <text class="bold">共 {{favCount}} 注，命中 {{winCount}} 注</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="app-footer">
+    <text class="line">彩票开奖为独立随机事件，历史数据与算法均无法预测结果。</text>
+    <text class="line">仅供技术演示与娱乐，请理性购彩，未满 18 周岁禁止购彩。</text>
+  </view>
+</view>

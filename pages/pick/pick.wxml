@@ -1,0 +1,151 @@
+<view class="app">
+  <view class="topbar">
+    <view class="brand">
+      <view class="logo">AI</view>
+      <view class="brand-text">
+        <text class="h1">AI 智能选号</text>
+        <text class="h1-sub">策略生成 · 定胆杀号 · 手选</text>
+      </view>
+    </view>
+    <view class="segmented">
+      <view
+        wx:for="{{games}}"
+        wx:key="id"
+        class="tab {{item.id === gameId ? 'active' : ''}}"
+        data-id="{{item.id}}"
+        bindtap="onSwitchGame"
+      >{{item.name}}</view>
+    </view>
+  </view>
+
+  <view class="page-head">
+    <text class="h2">智能选号</text>
+    <text class="h2-sub">策略生成 · 定胆杀号 · 手选</text>
+  </view>
+
+  <view class="card card-first">
+    <view class="card-head">
+      <text class="h2">生成设置</text>
+      <text class="muted small">{{strategyDesc}}</text>
+    </view>
+    <view class="strategy-row">
+      <view
+        wx:for="{{strategies}}"
+        wx:key="key"
+        class="strategy {{item.key === strategy ? 'active' : ''}}"
+        data-key="{{item.key}}"
+        bindtap="onStrategy"
+      >{{item.label}}</view>
+    </view>
+    <view class="options-row">
+      <view class="opt" bindtap="onPickCount">
+        <text class="opt-label">注数</text>
+        <text class="opt-value">{{pickCount}} 注</text>
+      </view>
+      <view class="opt" data-key="sumRange" bindtap="onToggleOpt">
+        <view class="checkbox {{opts.sumRange ? 'checked' : ''}}"></view>
+        <text class="opt-label">和值区间</text>
+      </view>
+      <view class="opt" data-key="oddEven" bindtap="onToggleOpt">
+        <view class="checkbox {{opts.oddEven ? 'checked' : ''}}"></view>
+        <text class="opt-label">奇偶比例</text>
+      </view>
+      <view class="opt" data-key="zoneBalance" bindtap="onToggleOpt">
+        <view class="checkbox {{opts.zoneBalance ? 'checked' : ''}}"></view>
+        <text class="opt-label">区间均衡</text>
+      </view>
+      <view class="opt" data-key="noTripleRun" bindtap="onToggleOpt">
+        <view class="checkbox {{opts.noTripleRun ? 'checked' : ''}}"></view>
+        <text class="opt-label">限制连号</text>
+      </view>
+    </view>
+    <view class="primary big" bindtap="onGenerate">立即生成</view>
+  </view>
+
+  <view class="card {{picks.length === 0 ? 'hidden' : ''}}">
+    <view class="card-head">
+      <text class="h2">生成结果</text>
+      <view class="head-actions">
+        <view class="ghost" bindtap="onCopyAll">复制全部</view>
+      </view>
+    </view>
+    <view wx:for="{{picks}}" wx:key="k" class="pick-row">
+      <view class="balls-row">
+        <view wx:for="{{item.balls}}" wx:for-item="b" wx:key="k" class="{{b.cls}}">{{b.n}}</view>
+      </view>
+      <view class="actions">
+        <text wx:if="{{item.scoreText}}" class="pick-meta-chip">{{item.scoreText}}</text>
+        <text wx:if="{{item.fav}}" class="pick-meta-chip fav">已收藏</text>
+        <view class="ghost" data-index="{{index}}" bindtap="onCopyPick">复制</view>
+        <view class="ghost" data-index="{{index}}" bindtap="onFavPick">{{item.fav ? '取消收藏' : '收藏'}}</view>
+      </view>
+    </view>
+    <view class="muted small" style="margin-top:10px">{{pickMeta}}</view>
+  </view>
+
+  <view class="card">
+    <view class="card-head">
+      <text class="h2">定胆 / 杀号</text>
+      <text class="muted small">{{mustBanStatus}}</text>
+    </view>
+    <view class="filter-tools">
+      <view class="mode-btn must {{filterMode === 'must' ? 'active' : ''}}" data-mode="must" bindtap="onFilterMode">定胆模式</view>
+      <view class="mode-btn ban {{filterMode === 'ban' ? 'active' : ''}}" data-mode="ban" bindtap="onFilterMode">杀号模式</view>
+    </view>
+    <view wx:for="{{filterAreas}}" wx:key="key" class="filter-area">
+      <view class="sub-title {{index === 0 ? 'first' : ''}}">
+        {{item.label}}
+        <text class="muted">定胆 {{item.mustCount}} · 杀号 {{item.banCount}}</text>
+      </view>
+      <view class="ball-grid">
+        <view
+          wx:for="{{item.nums}}"
+          wx:for-item="cell"
+          wx:key="n"
+          class="ball {{item.cls}} pickable {{cell.mark}} {{cell.disabled ? 'disabled' : ''}}"
+          data-area="{{item.key}}"
+          data-n="{{cell.n}}"
+          data-disabled="{{cell.disabled ? 1 : 0}}"
+          bindtap="onFilterTap"
+        >{{cell.label}}</view>
+      </view>
+    </view>
+    <view class="manual-actions">
+      <view class="ghost" bindtap="onFilterClear">全部清空</view>
+    </view>
+  </view>
+
+  <view class="card">
+    <view class="card-head">
+      <text class="h2">手选号码</text>
+      <text class="muted small">{{manualStatus}}</text>
+    </view>
+    <view wx:for="{{manualAreas}}" wx:key="key" class="manual-area">
+      <view class="sub-title {{index === 0 ? 'first' : ''}}">
+        {{item.label}}
+        <text class="muted">已选 {{item.selectedCount}} / {{item.pick}}</text>
+      </view>
+      <view class="ball-grid">
+        <view
+          wx:for="{{item.nums}}"
+          wx:for-item="cell"
+          wx:key="n"
+          class="ball {{item.cls}} pickable {{cell.picked ? 'picked' : ''}}"
+          data-area="{{item.key}}"
+          data-n="{{cell.n}}"
+          bindtap="onManualTap"
+        >{{cell.label}}</view>
+      </view>
+    </view>
+    <view class="manual-actions">
+      <view class="ghost" bindtap="onManualClear">清空</view>
+      <view class="ghost" bindtap="onManualFill">随机补全</view>
+      <view class="ghost" bindtap="onManualFav">收藏此注</view>
+    </view>
+  </view>
+
+  <view class="app-footer">
+    <text class="line">彩票开奖为独立随机事件，历史数据与算法均无法预测结果。</text>
+    <text class="line">仅供技术演示与娱乐，请理性购彩，未满 18 周岁禁止购彩。</text>
+  </view>
+</view>

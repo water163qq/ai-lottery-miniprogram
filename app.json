@@ -1,0 +1,56 @@
+{
+  "pages": [
+    "pages/analysis/analysis",
+    "pages/pick/pick",
+    "pages/draw/draw",
+    "pages/news/news",
+    "pages/fav/fav"
+  ],
+  "window": {
+    "navigationBarBackgroundColor": "#0b0f1a",
+    "navigationBarTextStyle": "white",
+    "navigationBarTitleText": "AI 智能选号",
+    "backgroundColor": "#0b0f1a",
+    "backgroundTextStyle": "dark"
+  },
+  "tabBar": {
+    "color": "#8a93a8",
+    "selectedColor": "#6c8cff",
+    "backgroundColor": "#0f1421",
+    "borderStyle": "black",
+    "list": [
+      {
+        "pagePath": "pages/analysis/analysis",
+        "text": "分析",
+        "iconPath": "assets/tabbar/analysis.png",
+        "selectedIconPath": "assets/tabbar/analysis-active.png"
+      },
+      {
+        "pagePath": "pages/pick/pick",
+        "text": "选号",
+        "iconPath": "assets/tabbar/pick.png",
+        "selectedIconPath": "assets/tabbar/pick-active.png"
+      },
+      {
+        "pagePath": "pages/draw/draw",
+        "text": "开奖",
+        "iconPath": "assets/tabbar/draw.png",
+        "selectedIconPath": "assets/tabbar/draw-active.png"
+      },
+      {
+        "pagePath": "pages/news/news",
+        "text": "资讯",
+        "iconPath": "assets/tabbar/news.png",
+        "selectedIconPath": "assets/tabbar/news-active.png"
+      },
+      {
+        "pagePath": "pages/fav/fav",
+        "text": "收藏",
+        "iconPath": "assets/tabbar/fav.png",
+        "selectedIconPath": "assets/tabbar/fav-active.png"
+      }
+    ]
+  },
+  "style": "v2",
+  "sitemapLocation": "sitemap.json"
+}

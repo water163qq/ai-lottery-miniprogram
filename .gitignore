@@ -1,0 +1,13 @@
+# macOS
+.DS_Store
+
+# Windows
+Thumbs.db
+Desktop.ini
+
+# 微信开发者工具本地配置
+project.private.config.json
+
+# 依赖与构建产物
+node_modules/
+miniprogram_npm/

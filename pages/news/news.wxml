@@ -1,0 +1,67 @@
+<view class="app">
+  <view class="topbar">
+    <view class="brand">
+      <view class="logo">AI</view>
+      <view class="brand-text">
+        <text class="h1">AI 智能选号</text>
+        <text class="h1-sub">开奖公告 · 彩票新闻</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="page-head">
+    <text class="h2">最新资讯</text>
+    <text class="h2-sub">开奖公告 · 彩票新闻 {{updatedText}}</text>
+  </view>
+
+  <view class="card card-first">
+    <view class="card-head">
+      <text class="h2">最新开奖</text>
+      <view class="ghost" bindtap="onRefresh">刷新</view>
+    </view>
+    <view wx:if="{{draws.length === 0}}" class="fav-empty">暂无开奖数据</view>
+    <view wx:for="{{draws}}" wx:key="id" class="news-draw">
+      <view class="news-draw-head">
+        <text class="news-game">{{item.name}}</text>
+        <text class="news-issue">第 {{item.issue}} 期</text>
+        <text class="muted small">{{item.date}}</text>
+      </view>
+      <view class="balls-row">
+        <view wx:for="{{item.balls}}" wx:for-item="b" wx:key="k" class="{{b.cls}}">{{b.n}}</view>
+      </view>
+      <view wx:if="{{item.meta.length > 0}}" class="news-meta">
+        <view wx:for="{{item.meta}}" wx:for-item="m" wx:key="label" class="meta-item">
+          <text>{{m.label}} </text><text class="b">{{m.value}}</text>
+        </view>
+      </view>
+      <view wx:if="{{item.content}}" class="news-draw-content">{{item.content}}</view>
+      <view class="muted small news-source">{{item.source}}</view>
+    </view>
+  </view>
+
+  <view class="card">
+    <view class="card-head">
+      <text class="h2">彩票新闻</text>
+      <text class="muted small">{{newsCountText}}</text>
+    </view>
+    <view wx:if="{{news.length === 0}}" class="fav-empty">暂无新闻，请稍后刷新。</view>
+    <view class="news-list">
+      <view
+        wx:for="{{news}}"
+        wx:key="k"
+        class="news-item"
+        data-url="{{item.url}}"
+        bindtap="onOpenNews"
+      >
+        <text class="news-date">{{item.date}}</text>
+        <text class="news-title">{{item.title}}</text>
+        <text class="news-tag">{{item.source}}</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="app-footer">
+    <text class="line">彩票开奖为独立随机事件，历史数据与算法均无法预测结果。</text>
+    <text class="line">仅供技术演示与娱乐，请理性购彩，未满 18 周岁禁止购彩。</text>
+  </view>
+</view>

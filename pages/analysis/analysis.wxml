@@ -1,0 +1,103 @@
+<view class="app">
+  <view class="topbar">
+    <view class="brand">
+      <view class="logo">AI</view>
+      <view class="brand-text">
+        <text class="h1">AI 智能选号</text>
+        <text class="h1-sub">多维数据分析 · 智能约束过滤</text>
+      </view>
+    </view>
+    <view class="segmented">
+      <view
+        wx:for="{{games}}"
+        wx:key="id"
+        class="tab {{item.id === gameId ? 'active' : ''}}"
+        data-id="{{item.id}}"
+        bindtap="onSwitchGame"
+      >{{item.name}}</view>
+    </view>
+  </view>
+
+  <view class="page-head">
+    <text class="h2">数据分析</text>
+    <text class="h2-sub">基于 <text class="strong">{{dataCount}}</text> 期开奖数据 · {{dataSource}}</text>
+  </view>
+
+  <view class="card card-first">
+    <view class="notice">
+      <text class="notice-badge">数据</text>
+      <text class="notice-text">开奖数据来自官方公开发布，仅作统计展示。彩票开奖为独立随机事件，任何算法都无法提高中奖概率，仅供娱乐参考。</text>
+    </view>
+  </view>
+
+  <view class="card">
+    <view class="card-head">
+      <text class="h2">冷热与遗漏</text>
+      <view class="select-box" bindtap="onWindowTap">
+        <text>{{windowLabel}}</text>
+        <text class="muted">▾</text>
+      </view>
+    </view>
+    <view class="sub-title first">最新一期 · {{latestIssue}}{{latestDate ? ' · ' + latestDate : ''}}</view>
+    <view class="balls-row">
+      <view wx:for="{{latestBalls}}" wx:key="k" class="{{item.cls}}">{{item.n}}</view>
+    </view>
+    <view class="hotcold">
+      <view class="hc-block">
+        <view class="hc-title hot-title">热号</view>
+        <view class="mini-balls">
+          <view wx:for="{{hot}}" wx:key="n" class="omission-tag">
+            <text class="b">{{item.n}}</text>
+            <text class="muted">{{item.freq}} 次</text>
+          </view>
+          <text wx:if="{{hot.length === 0}}" class="muted small">暂无明显热号</text>
+        </view>
+      </view>
+      <view class="hc-block">
+        <view class="hc-title cold-title">冷号</view>
+        <view class="mini-balls">
+          <view wx:for="{{cold}}" wx:key="n" class="omission-tag">
+            <text class="b">{{item.n}}</text>
+            <text class="muted">遗漏 {{item.omission}}</text>
+          </view>
+          <text wx:if="{{cold.length === 0}}" class="muted small">暂无明显冷号</text>
+        </view>
+      </view>
+    </view>
+    <view class="sub-title">遗漏排行 <text class="muted">{{omissionMeta}}</text></view>
+    <view class="mini-balls">
+      <view wx:for="{{omission}}" wx:key="n" class="omission-tag">
+        <text class="b">{{item.n}}</text>
+        <text class="muted">遗漏 {{item.omission}}</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="card">
+    <view class="card-head">
+      <text class="h2">数据图表</text>
+    </view>
+    <view class="sub-title first">号码频率分布 <text class="muted">统计窗口 {{freqMeta}} 期</text></view>
+    <canvas type="2d" id="freqChart" class="chart"></canvas>
+    <view class="sub-title">主区和值走势 <text class="muted">{{sumMeta}}</text></view>
+    <canvas type="2d" id="sumChart" class="chart tall"></canvas>
+  </view>
+
+  <view class="card">
+    <view class="card-head">
+      <text class="h2">历史开奖</text>
+      <text class="muted">近 8 期</text>
+    </view>
+    <view wx:for="{{history}}" wx:key="issue" class="history-item">
+      <text class="issue">{{item.issue}}</text>
+      <view class="balls-row">
+        <view wx:for="{{item.balls}}" wx:for-item="b" wx:key="k" class="{{b.cls}}">{{b.n}}</view>
+      </view>
+    </view>
+  </view>
+
+  <view class="app-footer">
+    <text class="line">彩票开奖为独立随机事件，历史数据与算法均无法预测结果。</text>
+    <text class="line">仅供技术演示与娱乐，请理性购彩，未满 18 周岁禁止购彩。</text>
+  </view>
+</view>
