@@ -30,6 +30,9 @@
 │   ├── engine.js                  统计分析、加权抽样、评分、奖级映射
 │   ├── store.js                   全局状态、本地存储封装、格式化工具
 │   └── chart.js                   Canvas 2D 频率图与和值走势图
+├── scripts/
+│   ├── sync-from-app-repo.py      从主仓库同步核心模块并转成 CommonJS
+│   └── test-miniprogram.js        Node 模拟 wx API 的页面测试
 └── pages/
     ├── analysis/                  数据分析 + 图表
     ├── pick/                      策略生成、定胆杀号、手选
@@ -53,6 +56,30 @@
 | 大乐透 | 500.com 历史开奖表 | 最近 500 期，含日期、销售额、一等奖注数与奖金 |
 
 数据由同源的 Web / Android 项目每日定时抓取并同步，`utils/livedata.js`、`utils/data.js`、`utils/engine.js` 与 Web 版保持一致。抓取失败时保留上一份有效数据，小程序始终能渲染。
+
+### 手动同步
+
+```bash
+# 从本地已 clone 的主仓库同步
+python3 scripts/sync-from-app-repo.py --src ../ai-lottery/lottery-ai/js
+
+# 或直接从 GitHub 拉取（无需本地主仓库）
+python3 scripts/sync-from-app-repo.py
+```
+
+脚本会把 ES Module 语法改写为 CommonJS，并校验开奖数据完整性（期数、倒序、字段齐全），校验失败不会写入。
+
+### 自动同步
+
+`.github/workflows/sync-data.yml` 每日 22:50 UTC 拉取主仓库最新核心模块，运行测试后自动提交。也可在 Actions 页面手动触发。
+
+### 测试
+
+```bash
+node scripts/test-miniprogram.js
+```
+
+使用 Node 模拟 `wx` API，覆盖五个页面的生命周期与主要交互（生成、定胆杀号、收藏、摇号、检票、复制），无需微信开发者工具即可验证逻辑。
 
 ## 核心算法
 
