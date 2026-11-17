@@ -19,7 +19,10 @@
   </view>
 
   <view class="page-head">
-    <text class="h2">数据分析</text>
+    <view class="page-head-row">
+      <text class="h2">数据分析</text>
+      <view class="ghost {{fetching ? 'disabled' : ''}}" bindtap="onRefresh">{{fetching ? '拉取中…' : '刷新'}}</view>
+    </view>
     <text class="h2-sub">基于 <text class="strong">{{dataCount}}</text> 期开奖数据 · {{dataSource}}</text>
   </view>
 

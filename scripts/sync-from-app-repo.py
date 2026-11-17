@@ -28,8 +28,8 @@ REWRITES = {
     "data.js": [
         (r"import \{ LIVE_DATA \} from './livedata.js';",
          "const { LIVE_DATA } = require('./livedata.js');"),
-        (r"export \{ GAME, HISTORY, DATA_META, mulberry32 \};",
-         "module.exports = { GAME, HISTORY, DATA_META, mulberry32 };"),
+        (r"export \{ GAME, HISTORY, DATA_META, mulberry32(?:, getLiveData, applyLiveData)? \};",
+         "module.exports = { GAME, HISTORY, DATA_META, mulberry32, getLiveData, applyLiveData };"),
     ],
     "engine.js": [
         (r"import \{ GAME, HISTORY, mulberry32 \} from './data.js';",

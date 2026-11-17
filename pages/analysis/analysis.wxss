@@ -1,1 +1,3 @@
 .strong { color: #e8ecf4; font-weight: 600; }
+.page-head-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.ghost.disabled { opacity: 0.45; }

@@ -1,1 +1,1 @@
-/* 资讯页复用全局样式 */
+.ghost.disabled { opacity: 0.45; }

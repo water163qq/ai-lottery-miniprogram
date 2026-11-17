@@ -17,7 +17,7 @@
   <view class="card card-first">
     <view class="card-head">
       <text class="h2">最新开奖</text>
-      <view class="ghost" bindtap="onRefresh">刷新</view>
+      <view class="ghost {{fetching ? 'disabled' : ''}}" bindtap="onRefresh">{{fetching ? '拉取中…' : '刷新'}}</view>
     </view>
     <view wx:if="{{draws.length === 0}}" class="fav-empty">暂无开奖数据</view>
     <view wx:for="{{draws}}" wx:key="id" class="news-draw">

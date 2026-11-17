@@ -1,5 +1,5 @@
-const { GAME, HISTORY, DATA_META } = require('./data.js');
-const { LIVE_DATA } = require('./livedata.js');
+const { GAME, HISTORY, DATA_META, getLiveData, applyLiveData } = require('./data.js');
+const { loadLiveData } = require('./fetch.js');
 
 const STORE_PREFIX = 'ai_lot_';
 
@@ -13,8 +13,26 @@ const state = {
   must: {},
   ban: {},
   filterMode: 'must',
-  stats: { count: 0, win: 0, best: null }
+  stats: { count: 0, win: 0, best: null },
+  fetching: false
 };
+
+const listeners = [];
+
+function onDataChange(fn) {
+  if (typeof fn !== 'function') return function () {};
+  listeners.push(fn);
+  return function () {
+    const i = listeners.indexOf(fn);
+    if (i >= 0) listeners.splice(i, 1);
+  };
+}
+
+function notifyDataChange() {
+  listeners.slice().forEach(fn => {
+    try { fn(); } catch (e) { /* page may have unloaded */ }
+  });
+}
 
 const GAME_IDS = Object.keys(GAME);
 
@@ -170,11 +188,44 @@ function formatNewsDate(date) {
   return m ? m[2] + '-' + m[3] : (date || '');
 }
 
+function sourceLabel(meta) {
+  if (state.fetching) return '正在拉取最新开奖…';
+  if (meta && meta.live) return '实时数据 · 更新于 ' + formatUpdated(meta.updatedAt);
+  return '离线备份数据';
+}
+
+let inflight = null;
+
+function refreshLiveData(silent) {
+  if (inflight) return inflight;
+  state.fetching = true;
+  notifyDataChange();
+  inflight = loadLiveData().then(payload => {
+    const ok = applyLiveData(payload);
+    state.fetching = false;
+    inflight = null;
+    notifyDataChange();
+    if (!silent && typeof wx !== 'undefined' && wx.showToast) {
+      wx.showToast({ title: ok ? '已更新为最新开奖数据' : '数据源暂不可用，已保留本地数据', icon: 'none' });
+    }
+    return ok;
+  }).catch(() => {
+    state.fetching = false;
+    inflight = null;
+    notifyDataChange();
+    if (!silent && typeof wx !== 'undefined' && wx.showToast) {
+      wx.showToast({ title: '拉取失败，已使用本地备份数据', icon: 'none' });
+    }
+    return false;
+  });
+  return inflight;
+}
+
 module.exports = {
   GAME,
   HISTORY,
   DATA_META,
-  LIVE_DATA,
+  get LIVE_DATA() { return getLiveData(); },
   GAME_IDS,
   STRATEGIES,
   state,
@@ -194,5 +245,8 @@ module.exports = {
   pickBalls,
   formatUpdated,
   formatMoney,
-  formatNewsDate
+  formatNewsDate,
+  sourceLabel,
+  onDataChange,
+  refreshLiveData
 };

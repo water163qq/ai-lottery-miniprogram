@@ -63,6 +63,6 @@ node scripts/upload-ci.js
 
 **提示 AppID 与密钥不匹配**：密钥是绑定具体 AppID 生成的，换 AppID 要重新生成。
 
-**体验版打开空白**：先用开发者工具在真机预览确认无误。本项目数据全部内置在 `utils/livedata.js`，不需要配置服务器域名。
+**体验版打开空白**：先用开发者工具在真机预览确认无误。启动与刷新会请求官方开奖接口，真机需配置 request 合法域名：`www.cwl.gov.cn`、`webapi.sporttery.cn`、`www.zhcw.com`。断网时回退到 `utils/livedata.js` 内置备份。
 
 **包体积超限**：主包上限 2MB。当前项目约 516KB，包含 276KB 数据，余量充足。

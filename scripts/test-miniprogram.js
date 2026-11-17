@@ -59,6 +59,9 @@ global.wx = {
   },
   getSystemInfoSync() {
     return { pixelRatio: 2 };
+  },
+  request(opts) {
+    if (opts && typeof opts.fail === 'function') opts.fail({ errMsg: 'request:fail' });
   }
 };
 
@@ -234,12 +237,98 @@ function run() {
   assert.strictEqual(store().state.favs.length, 0);
   assert.strictEqual(fav.data.favCount, 0);
 
-  console.log('ALL MINI PROGRAM TESTS PASSED');
-  console.log('toasts:', toasts.length, 'clipboard:', clipboard.length);
+  // ---------- live data apply + fetch ----------
+  const dataMod = require('../utils/data.js');
+  const sampleSsq = [];
+  const sampleDlt = [];
+  for (let i = 0; i < 25; i++) {
+    sampleSsq.push({
+      issue: String(2099900 - i),
+      date: '2026-11-17',
+      areas: { red: [1, 2, 3, 4, 5, 6], blue: [7] }
+    });
+    sampleDlt.push({
+      issue: String(269900 - i),
+      date: '2026-11-17',
+      areas: { front: [1, 2, 3, 4, 5], back: [6, 7] }
+    });
+  }
+  assert.strictEqual(dataMod.applyLiveData({
+    updatedAt: '2026-11-17T00:00:00Z',
+    draws: { ssq: sampleSsq, dlt: sampleDlt },
+    info: { ssq: { sales: '1' }, dlt: { sales: '2' } },
+    news: [{ title: '实时新闻', url: 'https://example.com/n', date: '2026-11-17', source: '中彩网' }]
+  }), true);
+  assert.strictEqual(dataMod.HISTORY.ssq[0].issue, '2099900');
+  assert.strictEqual(dataMod.DATA_META.ssq.live, true);
+  assert.strictEqual(dataMod.getLiveData().news[0].title, '实时新闻');
+
+  function mockLiveRequest(opts) {
+    if (/cwl\.gov\.cn/.test(opts.url)) {
+      opts.success({
+        statusCode: 200,
+        data: {
+          result: sampleSsq.map(d => ({
+            code: d.issue,
+            date: d.date,
+            red: d.areas.red.join(','),
+            blue: String(d.areas.blue[0]),
+            sales: '9',
+            poolmoney: '8',
+            content: '',
+            prizegrades: [{ type: 1, typenum: '2', typemoney: '7' }]
+          }))
+        }
+      });
+      return;
+    }
+    if (/sporttery\.cn/.test(opts.url)) {
+      opts.success({
+        statusCode: 200,
+        data: {
+          value: {
+            list: sampleDlt.map(d => ({
+              lotteryDrawNum: d.issue,
+              lotteryDrawTime: d.date,
+              lotteryDrawResult: d.areas.front.concat(d.areas.back).join(' '),
+              totalSaleAmount: '6',
+              poolBalanceAfterdraw: '5',
+              prizeLevelList: [{ prizeLevel: '一等奖', stakeCount: '1', stakeAmount: '4' }]
+            }))
+          }
+        }
+      });
+      return;
+    }
+    if (/zhcw\.com/.test(opts.url)) {
+      opts.success({
+        statusCode: 200,
+        data: '<a href="/c/2026-11-17/123.shtml" class="A">接口新闻</a>'
+      });
+      return;
+    }
+    opts.fail({ errMsg: 'request:fail' });
+  }
+
+  return store().refreshLiveData(true).then(() => {
+    global.wx.request = mockLiveRequest;
+    return store().refreshLiveData(true);
+  }).then(ok => {
+    assert.strictEqual(ok, true);
+    assert.strictEqual(dataMod.DATA_META.ssq.live, true);
+    assert.strictEqual(dataMod.getLiveData().news[0].title, '接口新闻');
+    news.read();
+    assert.strictEqual(news.data.news[0].title, '接口新闻');
+    console.log('ALL MINI PROGRAM TESTS PASSED');
+    console.log('toasts:', toasts.length, 'clipboard:', clipboard.length);
+  });
 }
 
 function store() {
   return require('../utils/store.js');
 }
 
-run();
+Promise.resolve(run()).catch(err => {
+  console.error(err);
+  process.exit(1);
+});

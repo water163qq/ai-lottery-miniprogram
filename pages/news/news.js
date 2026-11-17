@@ -5,7 +5,16 @@ Page({
     updatedText: '',
     draws: [],
     news: [],
-    newsCountText: ''
+    newsCountText: '',
+    fetching: false
+  },
+
+  onLoad() {
+    this.unsubscribe = store.onDataChange(() => this.read());
+  },
+
+  onUnload() {
+    if (this.unsubscribe) this.unsubscribe();
   },
 
   onShow() {
@@ -13,12 +22,12 @@ Page({
   },
 
   onRefresh() {
-    this.read();
-    wx.showToast({ title: '已刷新资讯', icon: 'none' });
+    store.refreshLiveData();
   },
 
   read() {
     const live = store.LIVE_DATA || {};
+    const fetching = !!store.state.fetching;
     const info = live.info || {};
     const news = Array.isArray(live.news) ? live.news : [];
 
@@ -44,7 +53,7 @@ Page({
         balls: store.pickBalls(latest, false, id),
         meta: metaRows,
         content: detail.content || '',
-        source: (meta.live ? '官方数据' : '内置数据') +
+        source: (meta.live ? '实时数据' : '备份数据') +
           (meta.updatedAt ? ' · 更新于 ' + store.formatUpdated(meta.updatedAt) : '')
       };
     }).filter(Boolean);
@@ -59,7 +68,8 @@ Page({
         date: store.formatNewsDate(n.date)
       })),
       newsCountText: news.length > 0 ? '共 ' + news.length + ' 条' : '',
-      updatedText: live.updatedAt ? '· 更新于 ' + store.formatUpdated(live.updatedAt) : ''
+      updatedText: live.updatedAt ? '· 更新于 ' + store.formatUpdated(live.updatedAt) : '',
+      fetching
     });
   },
 

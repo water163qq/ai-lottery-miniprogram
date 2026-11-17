@@ -19,6 +19,7 @@ Page({
     latestIssue: '',
     latestDate: '',
     latestBalls: [],
+    fetching: false,
     hot: [],
     cold: [],
     omission: [],
@@ -31,7 +32,12 @@ Page({
   onLoad() {
     this.gameId = store.state.game;
     this.windowSize = store.state.windowSize;
+    this.unsubscribe = store.onDataChange(() => this.read());
     this.read();
+  },
+
+  onUnload() {
+    if (this.unsubscribe) this.unsubscribe();
   },
 
   onReady() {
@@ -51,6 +57,10 @@ Page({
     store.setGame(id);
     this.gameId = id;
     this.read();
+  },
+
+  onRefresh() {
+    store.refreshLiveData();
   },
 
   onWindowTap() {
@@ -97,7 +107,8 @@ Page({
     this.setData({
       gameId,
       dataCount: history.length,
-      dataSource: meta.live ? '官方数据 · 更新于 ' + store.formatUpdated(meta.updatedAt) : '离线内置数据',
+      dataSource: store.sourceLabel(meta),
+      fetching: !!store.state.fetching,
       latestIssue: latest.issue,
       latestDate: latest.date || '',
       latestBalls: balls,

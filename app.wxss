@@ -88,6 +88,7 @@ page {
 .page-head { padding: 2px 2px 6px; }
 .page-head .h2 { font-size: 20px; font-weight: 600; letter-spacing: 0.4px; }
 .page-head .h2-sub { color: #8a93a8; font-size: 12px; margin-top: 3px; }
+.page-head-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
 
 /* ---------- 卡片 ---------- */
 
@@ -176,6 +177,7 @@ page {
 }
 
 .ghost.active-ghost { background: rgba(108, 140, 255, 0.16); border-color: #6c8cff; }
+.ghost.disabled { opacity: 0.45; }
 
 /* ---------- 号码球 ---------- */
 

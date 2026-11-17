@@ -100,17 +100,65 @@ function normalizeDraws(list, gameId) {
 
 const HISTORY = {};
 const DATA_META = {};
-let live = LIVE_DATA && typeof LIVE_DATA === 'object' ? LIVE_DATA : null;
+let live = LIVE_DATA && typeof LIVE_DATA === 'object'
+  ? LIVE_DATA
+  : { updatedAt: '', draws: {}, info: {}, news: [] };
 
-Object.keys(GAME).forEach(id => {
-  const fromLive = live && live.draws ? normalizeDraws(live.draws[id], id) : null;
-  if (fromLive) {
-    HISTORY[id] = fromLive;
-    DATA_META[id] = { live: true, updatedAt: live.updatedAt || '' };
-  } else {
-    HISTORY[id] = FALLBACK[id];
-    DATA_META[id] = { live: false, updatedAt: '' };
-  }
-});
+function hydrateFrom(payload, markLive) {
+  const draws = payload && payload.draws ? payload.draws : {};
+  Object.keys(GAME).forEach(id => {
+    const fromLive = normalizeDraws(draws[id], id);
+    if (fromLive) {
+      HISTORY[id] = fromLive;
+      DATA_META[id] = { live: markLive, updatedAt: (payload && payload.updatedAt) || '' };
+    } else if (!HISTORY[id]) {
+      HISTORY[id] = FALLBACK[id];
+      DATA_META[id] = { live: false, updatedAt: '' };
+    }
+  });
+}
 
-module.exports = { GAME, HISTORY, DATA_META, mulberry32 };
+hydrateFrom(live, false);
+
+function getLiveData() {
+  return live;
+}
+
+function mergeDraws(prev, incoming) {
+  const map = new Map();
+  (prev || []).forEach(d => { if (d && d.issue != null) map.set(String(d.issue), d); });
+  (incoming || []).forEach(d => { if (d && d.issue != null) map.set(String(d.issue), d); });
+  return Array.from(map.values()).sort((a, b) => (a.issue < b.issue ? 1 : a.issue > b.issue ? -1 : 0));
+}
+
+function applyLiveData(payload) {
+  if (!payload || typeof payload !== 'object') return false;
+  const stamp = payload.updatedAt || new Date().toISOString();
+  const nextDraws = Object.assign({}, live.draws || {});
+  const nextInfo = Object.assign({}, live.info || {});
+  let any = false;
+  Object.keys(GAME).forEach(id => {
+    const incoming = payload.draws ? payload.draws[id] : null;
+    if (!normalizeDraws(incoming, id)) return;
+    const merged = mergeDraws(nextDraws[id], incoming);
+    const normalized = normalizeDraws(merged, id);
+    if (!normalized) return;
+    nextDraws[id] = merged;
+    HISTORY[id] = normalized;
+    DATA_META[id] = { live: true, updatedAt: stamp };
+    if (payload.info && payload.info[id]) nextInfo[id] = payload.info[id];
+    any = true;
+  });
+  const nextNews = Array.isArray(payload.news) && payload.news.length
+    ? payload.news
+    : (live.news || []);
+  live = {
+    updatedAt: stamp,
+    draws: nextDraws,
+    info: nextInfo,
+    news: nextNews
+  };
+  return any;
+}
+
+module.exports = { GAME, HISTORY, DATA_META, mulberry32, getLiveData, applyLiveData };
